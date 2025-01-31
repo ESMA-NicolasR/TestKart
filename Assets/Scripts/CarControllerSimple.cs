@@ -97,21 +97,25 @@ public class CarControllerSimple : MonoBehaviour
             _shoulderMaxOffset*Time.fixedDeltaTime/_timeToShoulderOffset);
         
         // Moving
+        float targetSpeed;
         if (directionInput.y > 0)
         {
             _acceleration += _maxAcceleration * Time.fixedDeltaTime/_timeToAccelerate;
+            targetSpeed = _maxSpeed;
         }
         else if (directionInput.y < 0)
         {
-            _acceleration = -_breakForce;
+            _acceleration = _breakForce;
+            targetSpeed = _minSpeed;
         }
         else
         {
-            _acceleration = -_naturalDeceleration;
+            _acceleration = _naturalDeceleration;
+            targetSpeed = 0f;
         }
-
-        _rb.velocity += _acceleration * Time.fixedDeltaTime * transform.forward;
-        _rb.velocity = transform.forward * Mathf.Clamp(_rb.transform.InverseTransformDirection(_rb.velocity).z, _minSpeed, _maxSpeed);
+        var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
+        float newForwardSpeed = Mathf.MoveTowards(localVelocity.z, targetSpeed, _acceleration * Time.fixedDeltaTime);
+        _rb.velocity = transform.forward * newForwardSpeed;
         /*
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         var xVelocity = localVelocity.x;
@@ -120,7 +124,7 @@ public class CarControllerSimple : MonoBehaviour
         zVelocity = Mathf.Clamp(zVelocity, _minSpeed, _maxSpeed);
         localVelocity = new Vector3(xVelocity, yVelocity, zVelocity);
         _rb.velocity = _rb.transform.TransformDirection(localVelocity);*/
-        
+
         //_rb.MovePosition(transform.position + transform.forward * _speed * Time.fixedDeltaTime);
     }
 
