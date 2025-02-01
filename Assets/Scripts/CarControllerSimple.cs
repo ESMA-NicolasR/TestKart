@@ -16,6 +16,7 @@ public class CarControllerSimple : MonoBehaviour
     private Cinemachine3rdPersonFollow _3rdPersonFollow;
     [SerializeField] private float _maxPovOffset;
     [SerializeField] private float _timeToPovOffset;
+    [SerializeField] private float _timeToNeutral;
     [SerializeField] private Transform _pov;
     
     [Header("Acceleration settings")] 
@@ -94,18 +95,20 @@ public class CarControllerSimple : MonoBehaviour
         // Steering
         _rb.transform.eulerAngles += directionInput.x * steering * Time.fixedDeltaTime * transform.up;
         // Move POV to accomodate for new trajectory
+        var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(
             _pov.localPosition.x,
-            -directionInput.x*_maxPovOffset,
-            _maxPovOffset * Time.fixedDeltaTime/_timeToPovOffset);
+            -directionInput.x * _maxPovOffset,
+            _maxPovOffset * Time.fixedDeltaTime/timeTo);
         var newPos = _pov.localPosition;
         newPos.x = newX;
         _pov.localPosition = newPos;
         // Shoulder offset to see the car turning
+        timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_3rdPersonFollow.ShoulderOffset.x)) ? _timeToNeutral : _timeToShoulderOffset;
         _3rdPersonFollow.ShoulderOffset.x = Mathf.MoveTowards(
             _3rdPersonFollow.ShoulderOffset.x,
             directionInput.x*_shoulderMaxOffset,
-            _shoulderMaxOffset*Time.fixedDeltaTime/_timeToShoulderOffset);
+            _shoulderMaxOffset*Time.fixedDeltaTime/timeTo);
         
         // Moving
         float targetSpeed;

@@ -729,6 +729,7 @@ MonoBehaviour:
   _virtualCamera: {fileID: 1088100118}
   _maxPovOffset: 2
   _timeToPovOffset: 0.75
+  _timeToNeutral: 0.4
   _pov: {fileID: 1546661108}
   _maxAcceleration: 100
   _timeToAccelerate: 2
