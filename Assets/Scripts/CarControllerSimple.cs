@@ -14,6 +14,9 @@ public class CarControllerSimple : MonoBehaviour
     [SerializeField] private float _timeToShoulderOffset;
     [SerializeField] private CinemachineVirtualCamera _virtualCamera;
     private Cinemachine3rdPersonFollow _3rdPersonFollow;
+    [SerializeField] private float _maxPovOffset;
+    [SerializeField] private float _timeToPovOffset;
+    [SerializeField] private Transform _pov;
     
     [Header("Acceleration settings")] 
     [SerializeField] private float _maxAcceleration;
@@ -89,8 +92,16 @@ public class CarControllerSimple : MonoBehaviour
         transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
         
         // Steering
-        //_rb.AddTorque(directionInput.x * steering * transform.up, ForceMode.Acceleration);
         _rb.transform.eulerAngles += directionInput.x * steering * Time.fixedDeltaTime * transform.up;
+        // Move POV to accomodate for new trajectory
+        var newX = Mathf.MoveTowards(
+            _pov.localPosition.x,
+            -directionInput.x*_maxPovOffset,
+            _maxPovOffset * Time.fixedDeltaTime/_timeToPovOffset);
+        var newPos = _pov.localPosition;
+        newPos.x = newX;
+        _pov.localPosition = newPos;
+        // Shoulder offset to see the car turning
         _3rdPersonFollow.ShoulderOffset.x = Mathf.MoveTowards(
             _3rdPersonFollow.ShoulderOffset.x,
             directionInput.x*_shoulderMaxOffset,

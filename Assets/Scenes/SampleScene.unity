@@ -209,7 +209,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25084135, y: 0, z: 0, w: 0.96802825}
+  m_LocalRotation: {x: 0.17642456, y: 0, z: 0, w: 0.9843142}
   m_LocalPosition: {x: -253, y: 5.5, z: -445}
   m_LocalScale: {x: 1, y: 1.0150769, z: 1.4849231}
   m_ConstrainProportionsScale: 0
@@ -724,9 +724,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   steering: 60
-  _shoulderMaxOffset: 1.5
-  _timeToShoulderOffset: 0.2
+  _shoulderMaxOffset: 2
+  _timeToShoulderOffset: 0.75
   _virtualCamera: {fileID: 1088100118}
+  _maxPovOffset: 2
+  _timeToPovOffset: 0.75
+  _pov: {fileID: 1546661108}
   _maxAcceleration: 100
   _timeToAccelerate: 2
   _breakForce: 50
@@ -955,7 +958,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1088100117}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25084135, y: 0, z: 0, w: 0.96802825}
+  m_LocalRotation: {x: 0.17642456, y: 0, z: 0, w: 0.9843142}
   m_LocalPosition: {x: -253, y: 5.5, z: -445}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1176,7 +1179,7 @@ Transform:
   m_GameObject: {fileID: 1546661107}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
