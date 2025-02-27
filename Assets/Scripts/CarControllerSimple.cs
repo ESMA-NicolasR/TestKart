@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public class CarControllerSimple : MonoBehaviour
 {
@@ -34,7 +35,11 @@ public class CarControllerSimple : MonoBehaviour
     [Header("Power up settings")]
     [SerializeField] private float _mushroomIncreasedSpeed;
     [SerializeField] private float _mushroomDecayTime;
-    private bool isBoosting;
+    private bool _isBoosting;
+    private bool _canBoost;
+    [SerializeField] private GameObject _bananaPrefab;
+    private bool _canBanana;
+    [SerializeField] private Transform _objectDrop;
 
     public Vector2 directionInput;
     // Start is called before the first frame update
@@ -49,16 +54,41 @@ public class CarControllerSimple : MonoBehaviour
     {
         directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        if (Input.GetKeyDown(KeyCode.Space) && !isBoosting)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(Boost(_mushroomIncreasedSpeed, _mushroomDecayTime));
+            if (_canBoost && !_isBoosting)
+            {
+                _canBoost = false;
+                StartCoroutine(Boost(_mushroomIncreasedSpeed, _mushroomDecayTime));
+            }else if (_canBanana)
+            {
+                _canBanana = false;
+                PopBanana();
+            }
         }
         
     }
 
+    public void GetPowerUp()
+    {
+        if (Random.Range(0, 1) == 0)
+        {
+            _canBoost = true;
+        }
+        else
+        {
+            _canBanana = true;
+        }
+    }
+
+    public void PopBanana()
+    {
+        Instantiate(_bananaPrefab, _objectDrop.position, transform.rotation);
+    }
+
     public IEnumerator Boost(float speedIncrease, float decayTime)
     {
-        isBoosting = true;
+        _isBoosting = true;
         var prevMaxSpeed = _maxSpeed;
         var newMaxSpeed = _maxSpeed*speedIncrease;
         _maxSpeed = newMaxSpeed;
@@ -70,7 +100,7 @@ public class CarControllerSimple : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         _maxSpeed = prevMaxSpeed;
-        isBoosting = false;
+        _isBoosting = false;
     }
     
     private void FixedUpdate()
@@ -91,7 +121,7 @@ public class CarControllerSimple : MonoBehaviour
         var yAngle = transform.rotation.eulerAngles.y;
         var zAngle = 0f;
         transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
-        
+        directionInput.x *= Mathf.Sign(directionInput.y);
         // Steering
         _rb.transform.eulerAngles += directionInput.x * steering * Time.fixedDeltaTime * transform.up;
         // Move POV to accomodate for new trajectory

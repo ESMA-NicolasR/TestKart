@@ -28,6 +28,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private float _mushroomIncreasedSpeed;
     [SerializeField] private float _mushroomDecayTime;
     private bool isBoosting;
+    private bool canBoost;
 
     public Vector2 directionInput;
     // Start is called before the first frame update
@@ -41,8 +42,9 @@ public class CarController : MonoBehaviour
     {
         directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        if (Input.GetKeyDown(KeyCode.Space) && !isBoosting)
+        if (Input.GetKeyDown(KeyCode.Space) && !isBoosting && canBoost)
         {
+            canBoost = false;
             StartCoroutine(Boost(_mushroomIncreasedSpeed, _mushroomDecayTime));
         }
         
