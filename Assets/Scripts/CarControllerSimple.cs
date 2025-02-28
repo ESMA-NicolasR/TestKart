@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -30,7 +31,19 @@ public class CarControllerSimple : MonoBehaviour
     [Header("Speed settings")]
     [SerializeField] private float _maxSpeed;
     [SerializeField] private float _minSpeed;
-    private float _speed;
+
+    [Header("GroundCheck settings")]
+    [SerializeField] private LayerMask _groundSpeedLayer;
+    [SerializeField] private LayerMask _groundLayer;
+    [SerializeField] private float _groundCheckDistance;
+    private float _groundSpeedVariator;
+    [SerializeField] private float _gravity;
+    [SerializeField] private Transform _groundCheck1;
+    [SerializeField] private Transform _groundCheck2;
+    [SerializeField] private Transform _frontCheck;
+    [SerializeField] private bool _frontOnGround;
+    [SerializeField] private bool _rearOnGround;
+    [SerializeField] private bool _hasWallInFront;
     
     [Header("Power up settings")]
     [SerializeField] private float _mushroomIncreasedSpeed;
@@ -71,13 +84,15 @@ public class CarControllerSimple : MonoBehaviour
 
     public void GetPowerUp()
     {
-        if (Random.Range(0, 1) == 0)
+        if (Random.Range(0, 2) == 0)
         {
             _canBoost = true;
+            Debug.Log("I got a boost!");
         }
         else
         {
             _canBanana = true;
+            Debug.Log("I got a banana!");
         }
     }
 
@@ -121,9 +136,9 @@ public class CarControllerSimple : MonoBehaviour
         var yAngle = transform.rotation.eulerAngles.y;
         var zAngle = 0f;
         transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
-        directionInput.x *= Mathf.Sign(directionInput.y);
+        // directionInput.x *= Mathf.Sign(directionInput.y);
         // Steering
-        _rb.transform.eulerAngles += directionInput.x * steering * Time.fixedDeltaTime * transform.up;
+        _rb.transform.eulerAngles += directionInput.x * Mathf.Sign(directionInput.y) * steering * Time.fixedDeltaTime * transform.up;
         // Move POV to accomodate for new trajectory
         var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(
@@ -140,12 +155,34 @@ public class CarControllerSimple : MonoBehaviour
             directionInput.x*_shoulderMaxOffset,
             _shoulderMaxOffset*Time.fixedDeltaTime/timeTo);
         
+        // Check ground
+        bool hasHit = Physics.Raycast(transform.position, -transform.up, out var info, _groundCheckDistance, _groundSpeedLayer);
+        if (hasHit)
+        {
+            Ground groundBelow = info.transform.gameObject.GetComponent<Ground>();
+            if (groundBelow != null)
+            {
+                _groundSpeedVariator = groundBelow.speedVariator;
+            }
+            else
+            {
+                _groundSpeedVariator = 1;
+            }
+        }
+        else
+        {
+            _groundSpeedVariator = 1;
+        }
+
+        
         // Moving
         float targetSpeed;
         if (directionInput.y > 0)
         {
-            _acceleration += _maxAcceleration * Time.fixedDeltaTime/_timeToAccelerate;
-            targetSpeed = _maxSpeed;
+            float accelerationVariated = _maxAcceleration * _groundSpeedVariator;
+            _acceleration += accelerationVariated * Time.fixedDeltaTime/_timeToAccelerate;
+            _acceleration = Mathf.Clamp(_acceleration, -accelerationVariated, accelerationVariated);
+            targetSpeed = _maxSpeed * _groundSpeedVariator;
         }
         else if (directionInput.y < 0)
         {
@@ -170,6 +207,34 @@ public class CarControllerSimple : MonoBehaviour
         _rb.velocity = _rb.transform.TransformDirection(localVelocity);*/
 
         //_rb.MovePosition(transform.position + transform.forward * _speed * Time.fixedDeltaTime);
+        
+        // Gravity
+        _frontOnGround = Physics.Raycast(_groundCheck1.position, -transform.up, out info, 0.5f, _groundLayer);
+        _rearOnGround = Physics.Raycast(_groundCheck2.position, -transform.up, out info, 0.5f, _groundLayer);
+        if (_frontOnGround && _rearOnGround)
+        {
+            // We good
+        }
+        else
+        {
+            _rb.velocity += _gravity * Vector3.down;
+        }
+        
+        // Align to ground
+        Physics.Raycast(_groundCheck1.position, Vector3.down, out info, 100, _groundLayer);
+        float groundX = info.normal.x;
+        _hasWallInFront = Physics.Raycast(_frontCheck.position, transform.forward, out info, 0.5f, _groundLayer);
+        if (_hasWallInFront)
+        {
+            float oskour = (Vector3.SignedAngle(transform.forward, info.normal, Vector3.right) + 90.0f);
+            Debug.Log(info.normal +";;"+ oskour);
+            Debug.DrawRay(_frontCheck.position, info.normal*10.0f, Color.red);
+            transform.eulerAngles = new Vector3(oskour, transform.eulerAngles.y, 0);
+        }
+        else
+        {
+            transform.eulerAngles = new Vector3(groundX, transform.eulerAngles.y, 0);
+        }
     }
 
     private void OnGUI()
@@ -177,6 +242,7 @@ public class CarControllerSimple : MonoBehaviour
         GUILayout.Label($"x: {_rb.velocity.x:F}, y: {_rb.velocity.y:F}, z: {_rb.velocity.z:F}");
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         GUILayout.Label(localVelocity.ToString());
-        GUILayout.Label($"_speed : {_speed:F}, _acceleration : {_acceleration:F}");
+        GUILayout.Label($"_groundSpeedVariator : {_groundSpeedVariator:F}, _acceleration : {_acceleration:F}");
+        GUILayout.Label($"_frontOnGround : {_frontOnGround}, _rearOnGround : {_rearOnGround}, _hasWallInFront:{_hasWallInFront}");
     }
 }
