@@ -6,15 +6,10 @@ using UnityEngine;
 public class ItemLaunchable : Item
 {
     public GameObject prefabToLaunch;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+
+    public override void Activation(PlayerItemManager playerItemManager)
     {
-        
+        Instantiate(prefabToLaunch, playerItemManager.itemDropLocation.position, playerItemManager.transform.rotation);
     }
 }

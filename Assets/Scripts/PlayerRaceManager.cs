@@ -34,6 +34,8 @@ public class PlayerRaceManager : MonoBehaviour
             hasFinishedTurn = hasFinishedTurn && keyValuePair.Value;
         }
 
+        hasFinishedTurn = !_passedCheckpoints.ContainsValue(false);
+
         if (hasFinishedTurn)
         {
             _currentTurn++;

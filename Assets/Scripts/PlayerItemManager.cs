@@ -13,6 +13,7 @@ public class PlayerItemManager : MonoBehaviour
     [SerializeField]
     private Image _itemImage;
     public CarControllerSimple carController;
+    public Transform itemDropLocation;
 
     private int _numberOfItemUse;
 

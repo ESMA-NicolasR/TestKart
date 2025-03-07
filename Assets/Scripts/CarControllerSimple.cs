@@ -45,15 +45,6 @@ public class CarControllerSimple : MonoBehaviour
     [SerializeField] private bool _rearOnGround;
     [SerializeField] private bool _hasWallInFront;
     
-    [Header("Power up settings")]
-    [SerializeField] private float _mushroomIncreasedSpeed;
-    [SerializeField] private float _mushroomDecayTime;
-    private bool _isBoosting;
-    private bool _canBoost;
-    [SerializeField] private GameObject _bananaPrefab;
-    private bool _canBanana;
-    [SerializeField] private Transform _objectDrop;
-
     public Vector2 directionInput;
     // Start is called before the first frame update
     void Start()
@@ -68,25 +59,6 @@ public class CarControllerSimple : MonoBehaviour
         directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
     }
 
-    public void GetPowerUp()
-    {
-        if (Random.Range(0, 2) == 0)
-        {
-            _canBoost = true;
-            Debug.Log("I got a boost!");
-        }
-        else
-        {
-            _canBanana = true;
-            Debug.Log("I got a banana!");
-        }
-    }
-
-    public void PopBanana()
-    {
-        Instantiate(_bananaPrefab, _objectDrop.position, transform.rotation);
-    }
-
     public void Boost(float speedIncrease, float decayTime)
     {
         StartCoroutine(BoostCoroutine(speedIncrease, decayTime));
@@ -94,7 +66,6 @@ public class CarControllerSimple : MonoBehaviour
 
     public IEnumerator BoostCoroutine(float speedIncrease, float decayTime)
     {
-        _isBoosting = true;
         var prevMaxSpeed = _maxSpeed;
         var newMaxSpeed = _maxSpeed*speedIncrease;
         _maxSpeed = newMaxSpeed;
@@ -106,46 +77,10 @@ public class CarControllerSimple : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         _maxSpeed = prevMaxSpeed;
-        _isBoosting = false;
     }
     
     private void FixedUpdate()
     {
-        
-        /*_rb.velocity += directionInput.y * _acceleration * Time.fixedDeltaTime * transform.forward;
-        var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
-        var xVelocity = localVelocity.x;
-        var yVelocity = localVelocity.y;
-        var zVelocity = localVelocity.z;
-        zVelocity = Mathf.Clamp(zVelocity, -maxSpeed, maxSpeed);
-        localVelocity = new Vector3(xVelocity, yVelocity, zVelocity);
-        _rb.velocity = _rb.transform.TransformDirection(localVelocity);*/
-        // Look up and down
-        var xAngle = transform.eulerAngles.x;
-        if (xAngle > 180) xAngle -= 360;
-        xAngle = Mathf.Clamp(xAngle, -40, 40);
-        var yAngle = transform.rotation.eulerAngles.y;
-        var zAngle = 0f;
-        transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
-        // directionInput.x *= Mathf.Sign(directionInput.y);
-        // Steering
-        _rb.transform.eulerAngles += directionInput.x * Mathf.Sign(directionInput.y) * steering * Time.fixedDeltaTime * transform.up;
-        // Move POV to accomodate for new trajectory
-        var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
-        var newX = Mathf.MoveTowards(
-            _pov.localPosition.x,
-            -directionInput.x * _maxPovOffset,
-            _maxPovOffset * Time.fixedDeltaTime/timeTo);
-        var newPos = _pov.localPosition;
-        newPos.x = newX;
-        _pov.localPosition = newPos;
-        // Shoulder offset to see the car turning
-        timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_3rdPersonFollow.ShoulderOffset.x)) ? _timeToNeutral : _timeToShoulderOffset;
-        _3rdPersonFollow.ShoulderOffset.x = Mathf.MoveTowards(
-            _3rdPersonFollow.ShoulderOffset.x,
-            directionInput.x*_shoulderMaxOffset,
-            _shoulderMaxOffset*Time.fixedDeltaTime/timeTo);
-        
         // Check ground
         bool hasHit = Physics.Raycast(transform.position, -transform.up, out var info, _groundCheckDistance, _groundSpeedLayer);
         if (hasHit)
@@ -188,16 +123,6 @@ public class CarControllerSimple : MonoBehaviour
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         float newForwardSpeed = Mathf.MoveTowards(localVelocity.z, targetSpeed, _acceleration * Time.fixedDeltaTime);
         _rb.velocity = transform.forward * newForwardSpeed;
-        /*
-        var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
-        var xVelocity = localVelocity.x;
-        var yVelocity = localVelocity.y;
-        var zVelocity = localVelocity.z;
-        zVelocity = Mathf.Clamp(zVelocity, _minSpeed, _maxSpeed);
-        localVelocity = new Vector3(xVelocity, yVelocity, zVelocity);
-        _rb.velocity = _rb.transform.TransformDirection(localVelocity);*/
-
-        //_rb.MovePosition(transform.position + transform.forward * _speed * Time.fixedDeltaTime);
         
         // Gravity
         _frontOnGround = Physics.Raycast(_groundCheck1.position, -transform.up, out info, 0.5f, _groundLayer);
@@ -210,22 +135,32 @@ public class CarControllerSimple : MonoBehaviour
         {
             _rb.velocity += _gravity * Vector3.down;
         }
-        /*
-        // Align to ground
-        Physics.Raycast(_groundCheck1.position, Vector3.down, out info, 100, _groundLayer);
-        float groundX = info.normal.x;
-        _hasWallInFront = Physics.Raycast(_frontCheck.position, transform.forward, out info, 0.5f, _groundLayer);
-        if (_hasWallInFront)
-        {
-            float oskour = (Vector3.SignedAngle(transform.forward, info.normal, Vector3.right) + 90.0f);
-            Debug.Log(info.normal +";;"+ oskour);
-            Debug.DrawRay(_frontCheck.position, info.normal*10.0f, Color.red);
-            transform.eulerAngles = new Vector3(oskour, transform.eulerAngles.y, 0);
-        }
-        else
-        {
-            transform.eulerAngles = new Vector3(groundX, transform.eulerAngles.y, 0);
-        }*/
+        
+        // Look up and down
+        var xAngle = transform.eulerAngles.x;
+        if (xAngle > 180) xAngle -= 360;
+        xAngle = Mathf.Clamp(xAngle, -40, 40);
+        var yAngle = transform.rotation.eulerAngles.y;
+        var zAngle = 0f;
+        transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
+        
+        // Steering
+        _rb.transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * steering * Time.fixedDeltaTime * transform.up;
+        // Move POV to accomodate for new trajectory
+        var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
+        var newX = Mathf.MoveTowards(
+            _pov.localPosition.x,
+            -directionInput.x * _maxPovOffset,
+            _maxPovOffset * Time.fixedDeltaTime/timeTo);
+        var newPos = _pov.localPosition;
+        newPos.x = newX;
+        _pov.localPosition = newPos;
+        // Shoulder offset to see the car turning
+        timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_3rdPersonFollow.ShoulderOffset.x)) ? _timeToNeutral : _timeToShoulderOffset;
+        _3rdPersonFollow.ShoulderOffset.x = Mathf.MoveTowards(
+            _3rdPersonFollow.ShoulderOffset.x,
+            directionInput.x*_shoulderMaxOffset,
+            _shoulderMaxOffset*Time.fixedDeltaTime/timeTo);
     }
 
     private void OnGUI()
