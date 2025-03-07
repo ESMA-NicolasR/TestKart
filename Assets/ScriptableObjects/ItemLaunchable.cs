@@ -1,10 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PowerUp : MonoBehaviour
+[CreateAssetMenu(fileName = "ItemLaunchable", menuName = "Data/Item/ItemLaunchable")]
+public class ItemLaunchable : Item
 {
+    public GameObject prefabToLaunch;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,13 +16,5 @@ public class PowerUp : MonoBehaviour
     void Update()
     {
         
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            other.GetComponent<CarControllerSimple>().GetPowerUp();
-        }
     }
 }

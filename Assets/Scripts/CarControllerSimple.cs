@@ -66,20 +66,6 @@ public class CarControllerSimple : MonoBehaviour
     void Update()
     {
         directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (_canBoost && !_isBoosting)
-            {
-                _canBoost = false;
-                StartCoroutine(Boost(_mushroomIncreasedSpeed, _mushroomDecayTime));
-            }else if (_canBanana)
-            {
-                _canBanana = false;
-                PopBanana();
-            }
-        }
-        
     }
 
     public void GetPowerUp()
@@ -101,7 +87,12 @@ public class CarControllerSimple : MonoBehaviour
         Instantiate(_bananaPrefab, _objectDrop.position, transform.rotation);
     }
 
-    public IEnumerator Boost(float speedIncrease, float decayTime)
+    public void Boost(float speedIncrease, float decayTime)
+    {
+        StartCoroutine(BoostCoroutine(speedIncrease, decayTime));
+    }
+
+    public IEnumerator BoostCoroutine(float speedIncrease, float decayTime)
     {
         _isBoosting = true;
         var prevMaxSpeed = _maxSpeed;

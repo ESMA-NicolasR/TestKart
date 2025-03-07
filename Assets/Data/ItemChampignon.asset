@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30eef71d0a30ccc468c25fa1f9d7fc1a, type: 3}
+  m_Name: ItemChampignon
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 21300000, guid: 2805b3f4e8c67c946a62da8bf7398f58, type: 3}
+  itemName: Mushroom
+  nbUse: 1
+  speedIncrease: 2
+  decayTime: 1.5
