@@ -210,7 +210,7 @@ public class CarControllerSimple : MonoBehaviour
         {
             _rb.velocity += _gravity * Vector3.down;
         }
-        
+        /*
         // Align to ground
         Physics.Raycast(_groundCheck1.position, Vector3.down, out info, 100, _groundLayer);
         float groundX = info.normal.x;
@@ -225,7 +225,7 @@ public class CarControllerSimple : MonoBehaviour
         else
         {
             transform.eulerAngles = new Vector3(groundX, transform.eulerAngles.y, 0);
-        }
+        }*/
     }
 
     private void OnGUI()
