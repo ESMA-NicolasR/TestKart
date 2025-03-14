@@ -17,7 +17,7 @@ public class PlayerRaceManager : MonoBehaviour
         UpdateDisplay();
         _passedCheckpoints = new Dictionary<int, bool>();
         var index = 0;
-        foreach (var checkpoint in FindObjectsOfType<Checkpoint>())
+        foreach (var checkpoint in FindObjectsByType<Checkpoint>(FindObjectsSortMode.None))
         {
             checkpoint.SetIndex(index);
             _passedCheckpoints.Add(index, false);

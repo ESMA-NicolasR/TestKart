@@ -125,9 +125,9 @@ public class CarControllerSimple : MonoBehaviour
         _rb.velocity = transform.forward * newForwardSpeed;
         
         // Gravity
-        _frontOnGround = Physics.Raycast(_groundCheck1.position, -transform.up, out info, 0.5f, _groundLayer);
-        _rearOnGround = Physics.Raycast(_groundCheck2.position, -transform.up, out info, 0.5f, _groundLayer);
-        if (_frontOnGround && _rearOnGround)
+        _frontOnGround = Physics.Raycast(_groundCheck1.position, -transform.up, out var infoFront, 0.1f, _groundLayer);
+        _rearOnGround = Physics.Raycast(_groundCheck2.position, -transform.up, out var infoRear, 0.1f, _groundLayer);
+        if (_frontOnGround || _rearOnGround)
         {
             // We good
         }
@@ -135,14 +135,21 @@ public class CarControllerSimple : MonoBehaviour
         {
             _rb.velocity += _gravity * Vector3.down;
         }
+
+        Debug.Log("normal " + Quaternion.Euler(infoFront.normal).eulerAngles);
+        Debug.Log("fromTO " + Quaternion.FromToRotation(transform.up, infoFront.normal).eulerAngles);
+        
         
         // Look up and down
-        var xAngle = transform.eulerAngles.x;
-        if (xAngle > 180) xAngle -= 360;
-        xAngle = Mathf.Clamp(xAngle, -40, 40);
+        var xAngle = 0f;
+        //var xAngle = Quaternion.FromToRotation(transform.up, infoFront.normal).eulerAngles.x;
+        //if (xAngle > 180) xAngle -= 360;
+        //xAngle = Mathf.Clamp(xAngle, -40, 40);
         var yAngle = transform.rotation.eulerAngles.y;
         var zAngle = 0f;
-        transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
+        //transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
+        var aled = Quaternion.Euler(infoFront.normal).eulerAngles;
+        transform.eulerAngles = new Vector3(aled.x, transform.eulerAngles.y, aled.z);
         
         // Steering
         _rb.transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * steering * Time.fixedDeltaTime * transform.up;

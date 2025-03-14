@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 222960738744424463}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.49, z: 0.5}
+  m_LocalPosition: {x: 0, y: -0.49, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -75,8 +75,9 @@ GameObject:
   - component: {fileID: 8596999823888099931}
   - component: {fileID: 6155437025500808736}
   - component: {fileID: 2045066199060761082}
-  - component: {fileID: 4646519520755580043}
   - component: {fileID: 6069361038934852561}
+  - component: {fileID: 101560210693239024}
+  - component: {fileID: 6174966271182450283}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -221,14 +222,41 @@ MonoBehaviour:
   _frontOnGround: 0
   _rearOnGround: 0
   _hasWallInFront: 0
-  _mushroomIncreasedSpeed: 2
-  _mushroomDecayTime: 1.5
-  _bananaPrefab: {fileID: 6612091158342743254, guid: 64f8e9de3f08e9b4e863e342303672f4,
-    type: 3}
-  _objectDrop: {fileID: 5188892571982996555}
   directionInput: {x: 0, y: 0}
---- !u!136 &4646519520755580043
-CapsuleCollider:
+--- !u!114 &6069361038934852561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5998917587184739140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 459bbde38d818874390f1db4f1a9465a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _itemList:
+  - {fileID: 11400000, guid: 66b9ba7ec768ac94a8dde4a0daf84210, type: 2}
+  - {fileID: 11400000, guid: eb7149cfdbc14e34ca3e1aea52539984, type: 2}
+  _itemImage: {fileID: 0}
+  carController: {fileID: 2045066199060761082}
+  itemDropLocation: {fileID: 5188892571982996555}
+--- !u!114 &101560210693239024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5998917587184739140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 432b4e71a41809d48b3168c5b22d0a7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxTurns: 3
+  _turnText: {fileID: 0}
+--- !u!135 &6174966271182450283
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -245,26 +273,9 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1.5
-  m_Direction: 2
+  serializedVersion: 3
+  m_Radius: 0.33
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6069361038934852561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5998917587184739140}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 459bbde38d818874390f1db4f1a9465a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _itemList: []
-  _itemImage: {fileID: 0}
-  carController: {fileID: 0}
 --- !u!1 &6306413215972144857
 GameObject:
   m_ObjectHideFlags: 0
