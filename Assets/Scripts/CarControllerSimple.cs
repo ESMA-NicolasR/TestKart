@@ -135,24 +135,12 @@ public class CarControllerSimple : MonoBehaviour
         {
             _rb.velocity += _gravity * Vector3.down;
         }
-
-        Debug.Log("normal " + Quaternion.Euler(infoFront.normal).eulerAngles);
-        Debug.Log("fromTO " + Quaternion.FromToRotation(transform.up, infoFront.normal).eulerAngles);
         
-        
-        // Look up and down
-        var xAngle = 0f;
-        //var xAngle = Quaternion.FromToRotation(transform.up, infoFront.normal).eulerAngles.x;
-        //if (xAngle > 180) xAngle -= 360;
-        //xAngle = Mathf.Clamp(xAngle, -40, 40);
-        var yAngle = transform.rotation.eulerAngles.y;
-        var zAngle = 0f;
-        //transform.eulerAngles = new Vector3(xAngle, yAngle, zAngle);
-        var aled = Quaternion.Euler(infoFront.normal).eulerAngles;
-        transform.eulerAngles = new Vector3(aled.x, transform.eulerAngles.y, aled.z);
+        // Align to ground
+        transform.rotation = Quaternion.FromToRotation(transform.up, infoFront.normal) * transform.rotation;
         
         // Steering
-        _rb.transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * steering * Time.fixedDeltaTime * transform.up;
+        transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * steering * Time.fixedDeltaTime * transform.up;
         // Move POV to accomodate for new trajectory
         var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(
