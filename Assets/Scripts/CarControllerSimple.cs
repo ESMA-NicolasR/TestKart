@@ -10,8 +10,9 @@ using Random = UnityEngine.Random;
 public class CarControllerSimple : MonoBehaviour
 {
     private Rigidbody _rb;
-    [Header("Steering settings")] 
-    public float steering;
+    [Header("Steering settings")]
+    [SerializeField] private float _steeringSpeed;
+    [Header("Camera settings")] 
     [SerializeField] private float _shoulderMaxOffset;
     [SerializeField] private float _timeToShoulderOffset;
     [SerializeField] private CinemachineVirtualCamera _virtualCamera;
@@ -31,19 +32,18 @@ public class CarControllerSimple : MonoBehaviour
     [Header("Speed settings")]
     [SerializeField] private float _maxSpeed;
     [SerializeField] private float _minSpeed;
+    private float _currentSpeedMultiplier;
+    private float _groundSpeedVariator;
+    private const float BASE_SPEED_MULTIPLIER = 1.0f;
+    private const float BASE_GROUND_SPEED_MULTIPLIER = 1.0f;
 
     [Header("GroundCheck settings")]
     [SerializeField] private LayerMask _groundSpeedLayer;
     [SerializeField] private LayerMask _groundLayer;
+    [SerializeField] private Transform _groundCheck;
     [SerializeField] private float _groundCheckDistance;
-    private float _groundSpeedVariator;
     [SerializeField] private float _gravity;
-    [SerializeField] private Transform _groundCheck1;
-    [SerializeField] private Transform _groundCheck2;
-    [SerializeField] private Transform _frontCheck;
-    [SerializeField] private bool _frontOnGround;
-    [SerializeField] private bool _rearOnGround;
-    [SerializeField] private bool _hasWallInFront;
+    private bool _isOnGround;
     
     public Vector2 directionInput;
     // Start is called before the first frame update
@@ -66,42 +66,24 @@ public class CarControllerSimple : MonoBehaviour
 
     public IEnumerator BoostCoroutine(float speedIncrease, float decayTime)
     {
-        var prevMaxSpeed = _maxSpeed;
-        var newMaxSpeed = _maxSpeed*speedIncrease;
-        _maxSpeed = newMaxSpeed;
-        _rb.velocity = transform.forward * newMaxSpeed;
-        while (decayTime > 0)
+        _currentSpeedMultiplier = speedIncrease;
+        // Force the player to boost forward
+        _rb.velocity = _maxSpeed * _currentSpeedMultiplier * transform.forward;
+        var remainingTime = decayTime;
+        while (remainingTime > 0)
         {
-            _maxSpeed = Mathf.Lerp(prevMaxSpeed, newMaxSpeed, decayTime);
-            decayTime -= Time.deltaTime;
+            _currentSpeedMultiplier = Mathf.Lerp(BASE_SPEED_MULTIPLIER, speedIncrease, remainingTime/decayTime);
+            remainingTime -= Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
-        _maxSpeed = prevMaxSpeed;
+        // Previous loop probably won't reset the value properly
+        _currentSpeedMultiplier = BASE_SPEED_MULTIPLIER;
     }
     
     private void FixedUpdate()
     {
-        // Check ground
-        bool hasHit = Physics.Raycast(transform.position, -transform.up, out var info, _groundCheckDistance, _groundSpeedLayer);
-        if (hasHit)
-        {
-            Ground groundBelow = info.transform.gameObject.GetComponent<Ground>();
-            if (groundBelow != null)
-            {
-                _groundSpeedVariator = groundBelow.speedVariator;
-            }
-            else
-            {
-                _groundSpeedVariator = 1;
-            }
-        }
-        else
-        {
-            _groundSpeedVariator = 1;
-        }
-
-        
-        // Moving
+      
+        #region Moving
         float targetSpeed;
         if (directionInput.y > 0)
         {
@@ -123,24 +105,38 @@ public class CarControllerSimple : MonoBehaviour
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         float newForwardSpeed = Mathf.MoveTowards(localVelocity.z, targetSpeed, _acceleration * Time.fixedDeltaTime);
         _rb.velocity = transform.forward * newForwardSpeed;
+        #endregion
         
-        // Gravity
-        _frontOnGround = Physics.Raycast(_groundCheck1.position, -transform.up, out var infoFront, 0.1f, _groundLayer);
-        _rearOnGround = Physics.Raycast(_groundCheck2.position, -transform.up, out var infoRear, 0.1f, _groundLayer);
-        if (_frontOnGround || _rearOnGround)
+        #region Ground check
+        _isOnGround = Physics.Raycast(_groundCheck.position, -transform.up, out var hit, _groundCheckDistance, _groundLayer);
+        if (_isOnGround)
         {
-            // We good
+            // Align to ground
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, _steeringSpeed * Time.fixedDeltaTime);
+            // Ground modifiers
+            Ground groundBelow = hit.transform.gameObject.GetComponent<Ground>();
+            if (groundBelow != null)
+            {
+                _groundSpeedVariator = groundBelow.speedVariator;
+            }
+            else
+            {
+                _groundSpeedVariator = BASE_GROUND_SPEED_MULTIPLIER;
+            }
         }
         else
         {
+            // Bring down the car to the ground
             _rb.velocity += _gravity * Vector3.down;
+            _groundSpeedVariator = BASE_GROUND_SPEED_MULTIPLIER;
         }
+        #endregion
         
-        // Align to ground
-        transform.rotation = Quaternion.FromToRotation(transform.up, infoFront.normal) * transform.rotation;
         
-        // Steering
-        transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * steering * Time.fixedDeltaTime * transform.up;
+        #region Steering + camera turning
+        // Steer with inputs
+        transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * _steeringSpeed * Time.fixedDeltaTime * transform.up;
+        
         // Move POV to accomodate for new trajectory
         var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(
@@ -150,12 +146,14 @@ public class CarControllerSimple : MonoBehaviour
         var newPos = _pov.localPosition;
         newPos.x = newX;
         _pov.localPosition = newPos;
+        
         // Shoulder offset to see the car turning
         timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_3rdPersonFollow.ShoulderOffset.x)) ? _timeToNeutral : _timeToShoulderOffset;
         _3rdPersonFollow.ShoulderOffset.x = Mathf.MoveTowards(
             _3rdPersonFollow.ShoulderOffset.x,
             directionInput.x*_shoulderMaxOffset,
             _shoulderMaxOffset*Time.fixedDeltaTime/timeTo);
+        #endregion
     }
 
     private void OnGUI()
@@ -164,6 +162,6 @@ public class CarControllerSimple : MonoBehaviour
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         GUILayout.Label(localVelocity.ToString());
         GUILayout.Label($"_groundSpeedVariator : {_groundSpeedVariator:F}, _acceleration : {_acceleration:F}");
-        GUILayout.Label($"_frontOnGround : {_frontOnGround}, _rearOnGround : {_rearOnGround}, _hasWallInFront:{_hasWallInFront}");
+        GUILayout.Label($"_isOnground : {_isOnGround}");
     }
 }
