@@ -147,7 +147,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &2045066199060761082
 MonoBehaviour:
@@ -161,7 +161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98cec7283f044e9fa9064a7663a39e7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _steeringSpeed: 60
+  _baseSteeringSpeed: 60
   _shoulderMaxOffset: 2
   _timeToShoulderOffset: 0.75
   _virtualCamera: {fileID: 0}
@@ -175,6 +175,9 @@ MonoBehaviour:
   _naturalDeceleration: 10
   _maxSpeed: 100
   _minSpeed: -50
+  _baseGrip: 1
+  _driftGrip: 0.04
+  _steeringDriftMultiplier: 1.7
   _groundSpeedLayer:
     serializedVersion: 2
     m_Bits: 128

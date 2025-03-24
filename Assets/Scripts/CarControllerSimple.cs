@@ -11,7 +11,8 @@ public class CarControllerSimple : MonoBehaviour
 {
     private Rigidbody _rb;
     [Header("Steering settings")]
-    [SerializeField] private float _steeringSpeed;
+    [SerializeField] private float _baseSteeringSpeed;
+    private float _steeringSpeed;
     [Header("Camera settings")] 
     [SerializeField] private float _shoulderMaxOffset;
     [SerializeField] private float _timeToShoulderOffset;
@@ -37,6 +38,16 @@ public class CarControllerSimple : MonoBehaviour
     private const float BASE_SPEED_MULTIPLIER = 1.0f;
     private const float BASE_GROUND_SPEED_MULTIPLIER = 1.0f;
     private Coroutine _currentBoostCoroutine;
+    
+    [Header("Drifting settings")]
+    private bool _isDrifting;
+    private bool _beginDrifting;
+    private bool _endDrifting;
+    [SerializeField] private float _baseGrip;
+    [SerializeField] private float _driftGrip;
+    [SerializeField] private float _steeringDriftMultiplier;
+    private float _currentGrip;
+    private float _groundGripMultiplier;
 
     [Header("GroundCheck settings")]
     [SerializeField] private LayerMask _groundSpeedLayer;
@@ -58,7 +69,17 @@ public class CarControllerSimple : MonoBehaviour
 
     void Update()
     {
+        // Reading inputs
         directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        if (Input.GetButtonDown("Jump"))
+        {
+            _beginDrifting = true;
+        }
+        else if (Input.GetButtonUp("Jump"))
+        {
+            _endDrifting = true;
+        }
+
     }
 
     public void Boost(float speedIncrease, float decayTime)
@@ -88,32 +109,66 @@ public class CarControllerSimple : MonoBehaviour
     
     private void FixedUpdate()
     {
-      
+        // Used to know if the car is going forward or backward
+        Vector3 localVelocity = transform.InverseTransformDirection(_rb.velocity);
+        // Rounding bug
+        if (_rb.velocity == Vector3.zero)
+        {
+            localVelocity = Vector3.zero;
+        }
+        
+        // Check drifting state
+        if (_beginDrifting)
+        {
+            _isDrifting = true;
+            _beginDrifting = false;
+        }
+        else if (_endDrifting)
+        {
+            _rb.velocity = transform.forward * _rb.velocity.magnitude;
+            _isDrifting = false;
+            _endDrifting = false;
+        }
+        
+        // Steer with inputs
+        _steeringSpeed = _isDrifting ? _baseSteeringSpeed * _steeringDriftMultiplier : _baseSteeringSpeed;
+        transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * _steeringSpeed * Time.fixedDeltaTime * transform.up;
+        
         #region Moving
         float targetSpeed;
-        Vector3 localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         float maxForwardSpeed = _maxSpeed * _currentSpeedMultiplier * _groundSpeedMultiplier;
         float minBackwardSpeed = _minSpeed * _currentSpeedMultiplier * _groundSpeedMultiplier;
-        
+
+        // Check if we reached max forward velocity
         if (directionInput.y > 0 && localVelocity.z <= maxForwardSpeed)
         {
             float accelerationVariated = _maxAcceleration * _groundSpeedMultiplier;
-            _acceleration += accelerationVariated * Time.fixedDeltaTime/_timeToAccelerate;
+            _acceleration += accelerationVariated * Time.fixedDeltaTime / _timeToAccelerate;
             _acceleration = Mathf.Clamp(_acceleration, -accelerationVariated, accelerationVariated);
             targetSpeed = maxForwardSpeed;
         }
+        // Check if we reached max backward velocity
         else if (directionInput.y < 0 && localVelocity.z >= minBackwardSpeed)
         {
             _acceleration = _brakeForce;
             targetSpeed = minBackwardSpeed;
         }
+        // Natural friction
         else
         {
             _acceleration = _naturalDeceleration;
             targetSpeed = 0f;
         }
-        float newForwardSpeed = Mathf.MoveTowards(localVelocity.z, targetSpeed, _acceleration * Time.fixedDeltaTime);
-        _rb.velocity = transform.forward * newForwardSpeed;
+
+        float currentSpeed = _rb.velocity.magnitude;
+        float newForwardSpeed =
+            Mathf.MoveTowards(currentSpeed, targetSpeed, _acceleration * Time.fixedDeltaTime);
+
+        _currentGrip = (_isDrifting ? _driftGrip : _baseGrip) * _groundGripMultiplier;
+        Vector3 moveDirection = Vector3.Lerp(_rb.velocity.normalized, transform.forward, _currentGrip);
+        _rb.velocity = moveDirection * newForwardSpeed;
+
+        
         #endregion
         
         #region Ground check
@@ -121,7 +176,7 @@ public class CarControllerSimple : MonoBehaviour
         if (_isOnGround)
         {
             // Align to ground
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, _steeringSpeed * Time.fixedDeltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, _baseSteeringSpeed * Time.fixedDeltaTime);
             // Ground modifiers
             Ground groundBelow = hit.transform.gameObject.GetComponent<Ground>();
             if (groundBelow != null)
@@ -139,12 +194,12 @@ public class CarControllerSimple : MonoBehaviour
             _rb.velocity += _gravity * Vector3.down;
             _groundSpeedMultiplier = BASE_GROUND_SPEED_MULTIPLIER;
         }
+
+        _groundGripMultiplier = 1.0f;
         #endregion
         
-        
         #region Steering + camera turning
-        // Steer with inputs
-        transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * _steeringSpeed * Time.fixedDeltaTime * transform.up;
+
         
         // Move POV to accomodate for new trajectory
         var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
@@ -167,10 +222,12 @@ public class CarControllerSimple : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.Label($"x: {_rb.velocity.x:F}, y: {_rb.velocity.y:F}, z: {_rb.velocity.z:F}");
+        var style = new GUIStyle();
+        style.fontSize = 20;
+        GUILayout.Label($"x: {_rb.velocity.x:F}, y: {_rb.velocity.y:F}, z: {_rb.velocity.z:F}", style);
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
-        GUILayout.Label(localVelocity.ToString());
-        GUILayout.Label($"_groundSpeedVariator : {_groundSpeedMultiplier:F}, _acceleration : {_acceleration:F}");
-        GUILayout.Label($"_isOnground : {_isOnGround}");
+        GUILayout.Label(localVelocity.ToString(), style);
+        GUILayout.Label($"_groundSpeedVariator : {_groundSpeedMultiplier:F}, _acceleration : {_acceleration:F}", style);
+        GUILayout.Label($"_isOnground : {_isOnGround}", style);
     }
 }
