@@ -171,7 +171,7 @@ MonoBehaviour:
   _pov: {fileID: 8595123684550444544}
   _maxAcceleration: 100
   _timeToAccelerate: 2
-  _breakForce: 50
+  _brakeForce: 50
   _naturalDeceleration: 10
   _maxSpeed: 100
   _minSpeed: -50

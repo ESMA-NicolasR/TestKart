@@ -25,7 +25,7 @@ public class CarControllerSimple : MonoBehaviour
     [Header("Acceleration settings")] 
     [SerializeField] private float _maxAcceleration;
     [SerializeField] private float _timeToAccelerate;
-    [SerializeField] private float _breakForce;
+    [SerializeField] private float _brakeForce;
     [SerializeField] private float _naturalDeceleration;
     private float _acceleration;
     
@@ -33,9 +33,10 @@ public class CarControllerSimple : MonoBehaviour
     [SerializeField] private float _maxSpeed;
     [SerializeField] private float _minSpeed;
     private float _currentSpeedMultiplier;
-    private float _groundSpeedVariator;
+    private float _groundSpeedMultiplier;
     private const float BASE_SPEED_MULTIPLIER = 1.0f;
     private const float BASE_GROUND_SPEED_MULTIPLIER = 1.0f;
+    private Coroutine _currentBoostCoroutine;
 
     [Header("GroundCheck settings")]
     [SerializeField] private LayerMask _groundSpeedLayer;
@@ -46,14 +47,15 @@ public class CarControllerSimple : MonoBehaviour
     private bool _isOnGround;
     
     public Vector2 directionInput;
-    // Start is called before the first frame update
+
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
         _3rdPersonFollow = _virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+        _currentSpeedMultiplier = BASE_SPEED_MULTIPLIER;
+        _groundSpeedMultiplier = BASE_GROUND_SPEED_MULTIPLIER;
     }
 
-    // Update is called once per frame
     void Update()
     {
         directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -61,10 +63,14 @@ public class CarControllerSimple : MonoBehaviour
 
     public void Boost(float speedIncrease, float decayTime)
     {
-        StartCoroutine(BoostCoroutine(speedIncrease, decayTime));
+        if (_currentBoostCoroutine != null)
+        {
+            StopCoroutine(_currentBoostCoroutine);
+        }
+        _currentBoostCoroutine = StartCoroutine(BoostCoroutine(speedIncrease, decayTime));
     }
 
-    public IEnumerator BoostCoroutine(float speedIncrease, float decayTime)
+    private IEnumerator BoostCoroutine(float speedIncrease, float decayTime)
     {
         _currentSpeedMultiplier = speedIncrease;
         // Force the player to boost forward
@@ -85,24 +91,27 @@ public class CarControllerSimple : MonoBehaviour
       
         #region Moving
         float targetSpeed;
-        if (directionInput.y > 0)
+        Vector3 localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
+        float maxForwardSpeed = _maxSpeed * _currentSpeedMultiplier * _groundSpeedMultiplier;
+        float minBackwardSpeed = _minSpeed * _currentSpeedMultiplier * _groundSpeedMultiplier;
+        
+        if (directionInput.y > 0 && localVelocity.z <= maxForwardSpeed)
         {
-            float accelerationVariated = _maxAcceleration * _groundSpeedVariator;
+            float accelerationVariated = _maxAcceleration * _groundSpeedMultiplier;
             _acceleration += accelerationVariated * Time.fixedDeltaTime/_timeToAccelerate;
             _acceleration = Mathf.Clamp(_acceleration, -accelerationVariated, accelerationVariated);
-            targetSpeed = _maxSpeed * _groundSpeedVariator;
+            targetSpeed = maxForwardSpeed;
         }
-        else if (directionInput.y < 0)
+        else if (directionInput.y < 0 && localVelocity.z >= minBackwardSpeed)
         {
-            _acceleration = _breakForce;
-            targetSpeed = _minSpeed;
+            _acceleration = _brakeForce;
+            targetSpeed = minBackwardSpeed;
         }
         else
         {
             _acceleration = _naturalDeceleration;
             targetSpeed = 0f;
         }
-        var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         float newForwardSpeed = Mathf.MoveTowards(localVelocity.z, targetSpeed, _acceleration * Time.fixedDeltaTime);
         _rb.velocity = transform.forward * newForwardSpeed;
         #endregion
@@ -117,18 +126,18 @@ public class CarControllerSimple : MonoBehaviour
             Ground groundBelow = hit.transform.gameObject.GetComponent<Ground>();
             if (groundBelow != null)
             {
-                _groundSpeedVariator = groundBelow.speedVariator;
+                _groundSpeedMultiplier = groundBelow.speedVariator;
             }
             else
             {
-                _groundSpeedVariator = BASE_GROUND_SPEED_MULTIPLIER;
+                _groundSpeedMultiplier = BASE_GROUND_SPEED_MULTIPLIER;
             }
         }
         else
         {
             // Bring down the car to the ground
             _rb.velocity += _gravity * Vector3.down;
-            _groundSpeedVariator = BASE_GROUND_SPEED_MULTIPLIER;
+            _groundSpeedMultiplier = BASE_GROUND_SPEED_MULTIPLIER;
         }
         #endregion
         
@@ -161,7 +170,7 @@ public class CarControllerSimple : MonoBehaviour
         GUILayout.Label($"x: {_rb.velocity.x:F}, y: {_rb.velocity.y:F}, z: {_rb.velocity.z:F}");
         var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
         GUILayout.Label(localVelocity.ToString());
-        GUILayout.Label($"_groundSpeedVariator : {_groundSpeedVariator:F}, _acceleration : {_acceleration:F}");
+        GUILayout.Label($"_groundSpeedVariator : {_groundSpeedMultiplier:F}, _acceleration : {_acceleration:F}");
         GUILayout.Label($"_isOnground : {_isOnGround}");
     }
 }
