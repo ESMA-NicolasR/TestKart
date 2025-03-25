@@ -203,7 +203,7 @@ public class CarControllerSimple : MonoBehaviour
 
         
         // Move POV to accomodate for new trajectory
-        var timeTo = (directionInput.x == 0 || Mathf.Sign(-directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
+        var timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(
             _pov.localPosition.x,
             -directionInput.x * _maxPovOffset,
