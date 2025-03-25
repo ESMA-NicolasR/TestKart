@@ -47,7 +47,6 @@ public class CarControllerSimple : MonoBehaviour
     [SerializeField] private float _driftGrip;
     [SerializeField] private float _steeringDriftMultiplier;
     private float _currentGrip;
-    private float _groundGripMultiplier;
 
     [Header("GroundCheck settings")]
     [SerializeField] private LayerMask _groundSpeedLayer;
@@ -123,12 +122,7 @@ public class CarControllerSimple : MonoBehaviour
             _isDrifting = true;
             _beginDrifting = false;
         }
-        else if (_endDrifting)
-        {
-            _rb.velocity = transform.forward * _rb.velocity.magnitude;
-            _isDrifting = false;
-            _endDrifting = false;
-        }
+
         
         // Steer with inputs
         _steeringSpeed = _isDrifting ? _baseSteeringSpeed * _steeringDriftMultiplier : _baseSteeringSpeed;
@@ -160,14 +154,23 @@ public class CarControllerSimple : MonoBehaviour
             targetSpeed = 0f;
         }
 
-        float currentSpeed = _rb.velocity.magnitude;
+        float currentSpeed = _rb.velocity.magnitude * Mathf.Sign(localVelocity.z);
         float newForwardSpeed =
             Mathf.MoveTowards(currentSpeed, targetSpeed, _acceleration * Time.fixedDeltaTime);
 
-        _currentGrip = (_isDrifting ? _driftGrip : _baseGrip) * _groundGripMultiplier;
-        Vector3 moveDirection = Vector3.Lerp(_rb.velocity.normalized, transform.forward, _currentGrip);
+        // Grip represents how fast does the velocity direction follow the car orientation
+        _currentGrip = _isDrifting ? _driftGrip : _baseGrip;
+        // We ignore vertical movement
+        Vector3 groundVelocity = Vector3.ProjectOnPlane(_rb.velocity, transform.up).normalized;
+        Vector3 moveDirection = Vector3.Lerp(groundVelocity * Mathf.Sign(localVelocity.z), transform.forward, _currentGrip);
         _rb.velocity = moveDirection * newForwardSpeed;
 
+        if (_endDrifting)
+        {
+            _rb.velocity = transform.forward * _rb.velocity.magnitude;
+            _isDrifting = false;
+            _endDrifting = false;
+        }
         
         #endregion
         
@@ -194,8 +197,6 @@ public class CarControllerSimple : MonoBehaviour
             _rb.velocity += _gravity * Vector3.down;
             _groundSpeedMultiplier = BASE_GROUND_SPEED_MULTIPLIER;
         }
-
-        _groundGripMultiplier = 1.0f;
         #endregion
         
         #region Steering + camera turning
