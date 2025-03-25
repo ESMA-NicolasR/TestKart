@@ -10,6 +10,7 @@ using Random = UnityEngine.Random;
 public class CarControllerSimple : MonoBehaviour
 {
     private Rigidbody _rb;
+    private PlayerInputManager _playerInputManager;
     [Header("Steering settings")]
     [SerializeField] private float _baseSteeringSpeed;
     private float _steeringSpeed;
@@ -58,9 +59,10 @@ public class CarControllerSimple : MonoBehaviour
     
     public Vector2 directionInput;
 
-    void Start()
+    void Awake()
     {
         _rb = GetComponent<Rigidbody>();
+        _playerInputManager = GetComponent<PlayerInputManager>();
         _3rdPersonFollow = _virtualCamera.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
         _currentSpeedMultiplier = BASE_SPEED_MULTIPLIER;
         _groundSpeedMultiplier = BASE_GROUND_SPEED_MULTIPLIER;
@@ -69,12 +71,12 @@ public class CarControllerSimple : MonoBehaviour
     void Update()
     {
         // Reading inputs
-        directionInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        if (Input.GetButtonDown("Jump"))
+        directionInput = _playerInputManager.directionInput;
+        if (_playerInputManager.driftPressed)
         {
             _beginDrifting = true;
         }
-        else if (Input.GetButtonUp("Jump"))
+        else if (_playerInputManager.driftReleased)
         {
             _endDrifting = true;
         }

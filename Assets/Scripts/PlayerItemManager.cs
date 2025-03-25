@@ -16,10 +16,16 @@ public class PlayerItemManager : MonoBehaviour
     public Transform itemDropLocation;
 
     private int _numberOfItemUse;
+    private PlayerInputManager _playerInputManager;
+
+    private void Awake()
+    {
+        _playerInputManager = GetComponent<PlayerInputManager>();
+    }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (_playerInputManager.itemPressed)
         {
             UseItem();
         }

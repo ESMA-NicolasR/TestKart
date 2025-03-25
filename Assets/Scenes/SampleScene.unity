@@ -805,10 +805,15 @@ PrefabInstance:
       propertyPath: _virtualCamera
       value: 
       objectReference: {fileID: 1088100118}
+    - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
+        type: 3}
+      propertyPath: m_DefaultActionMap
+      value: ddbd6d29-5fb2-4d34-92a2-68424a0a3c8b
+      objectReference: {fileID: 0}
     - target: {fileID: 5998917587184739140, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
       propertyPath: m_Name
-      value: Player (1)
+      value: Player2
       objectReference: {fileID: 0}
     - target: {fileID: 5998917587184739140, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
@@ -4808,7 +4813,7 @@ PrefabInstance:
     - target: {fileID: 5998917587184739140, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
       propertyPath: m_Name
-      value: Player
+      value: Player1
       objectReference: {fileID: 0}
     - target: {fileID: 6069361038934852561, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
