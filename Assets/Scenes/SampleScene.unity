@@ -813,7 +813,12 @@ PrefabInstance:
     - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
       propertyPath: m_DefaultActionMap
-      value: 7acf352c-5241-443a-b662-cdc7ddcdf87a
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
+        type: 3}
+      propertyPath: m_DefaultControlScheme
+      value: KeyboardP2
       objectReference: {fileID: 0}
     - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
@@ -884,6 +889,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8997668931040995030, guid: 481392bff3b9f6d47a859fcf21ffb35b,
+        type: 3}
+      propertyPath: itemPressed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8997668931040995030, guid: 481392bff3b9f6d47a859fcf21ffb35b,
+        type: 3}
+      propertyPath: controlScheme
+      value: KeyboardP2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4994,7 +5009,12 @@ PrefabInstance:
     - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
       propertyPath: m_DefaultActionMap
-      value: ddbd6d29-5fb2-4d34-92a2-68424a0a3c8b
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
+        type: 3}
+      propertyPath: m_DefaultControlScheme
+      value: KeyboardP1
       objectReference: {fileID: 0}
     - target: {fileID: 2351730953192849080, guid: 481392bff3b9f6d47a859fcf21ffb35b,
         type: 3}
@@ -5060,6 +5080,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8997668931040995030, guid: 481392bff3b9f6d47a859fcf21ffb35b,
+        type: 3}
+      propertyPath: controlScheme
+      value: KeyboardP1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

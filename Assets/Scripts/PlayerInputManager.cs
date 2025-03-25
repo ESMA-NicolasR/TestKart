@@ -12,16 +12,19 @@ public class PlayerInputManager : MonoBehaviour
     public bool driftPressed;
     public bool driftReleased;
     public bool itemPressed;
+    public string controlScheme;
 
     private void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
+        // Unity disconnects the control scheme for local multiplayer on the same device
+        _playerInput.SwitchCurrentControlScheme(controlScheme, new []{Keyboard.current});
     }
 
     // Update is called once per frame
     void Update()
     {
-        directionInput = new Vector2(_playerInput.actions["Steer"].ReadValue<float>(), _playerInput.actions["Move"].ReadValue<float>());
+        directionInput = _playerInput.actions["Move"].ReadValue<Vector2>();
         driftPressed = _playerInput.actions["Drift"].WasPressedThisFrame();
         driftReleased = _playerInput.actions["Drift"].WasReleasedThisFrame();
         itemPressed = _playerInput.actions["Item"].WasPressedThisFrame();
