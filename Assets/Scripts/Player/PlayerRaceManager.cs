@@ -14,7 +14,7 @@ public class PlayerRaceManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _positionText;
     [SerializeField] private TextMeshProUGUI _scoreText;
     private Dictionary<int, bool> _passedCheckpoints;
-    private static float PCT_CHECKPOINTS_NEEDED_FOR_TURN = 0.8f;
+    private static float PCT_CHECKPOINTS_NEEDED_FOR_TURN = 0.75f;
     private int _lastCheckpoint;
     private int _score;
     private Func<KeyValuePair<int, bool>, bool> _filterPassed;

@@ -125,6 +125,8 @@ public class PlayerCarController : MonoBehaviour
             _beginDrifting = false;
         }
 
+        // Ground check
+        _isOnGround = Physics.Raycast(_groundCheck.position, -transform.up, out var hit, _groundCheckDistance, _groundLayer);
         
         // Steer with inputs
         _steeringSpeed = _isDrifting ? _baseSteeringSpeed * _steeringDriftMultiplier : _baseSteeringSpeed;
@@ -155,8 +157,9 @@ public class PlayerCarController : MonoBehaviour
             _acceleration = _naturalDeceleration;
             targetSpeed = 0f;
         }
-
-        float currentSpeed = _rb.velocity.magnitude * Mathf.Sign(localVelocity.z);
+        // Ignore vertical speed if we're airborne
+        Vector3 relevantVelocity = _isOnGround ? _rb.velocity : new Vector3(_rb.velocity.x, 0, _rb.velocity.z);
+        float currentSpeed = relevantVelocity.magnitude * Mathf.Sign(localVelocity.z);
         float newForwardSpeed =
             Mathf.MoveTowards(currentSpeed, targetSpeed, _acceleration * Time.fixedDeltaTime);
 
@@ -176,8 +179,7 @@ public class PlayerCarController : MonoBehaviour
             _endDrifting = false;
         }
         
-        #region Ground check
-        _isOnGround = Physics.Raycast(_groundCheck.position, -transform.up, out var hit, _groundCheckDistance, _groundLayer);
+        #region Adapt to ground
         if (_isOnGround)
         {
             // Align to ground
