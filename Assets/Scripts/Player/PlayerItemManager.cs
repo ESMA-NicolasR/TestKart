@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -12,7 +13,7 @@ public class PlayerItemManager : MonoBehaviour
     private Item _currentItem;
     [SerializeField]
     private Image _itemImage;
-    public CarControllerSimple carController;
+    [FormerlySerializedAs("carController")] public PlayerCarController playerCarController;
     public Transform itemDropLocation;
 
     private int _numberOfItemUse;

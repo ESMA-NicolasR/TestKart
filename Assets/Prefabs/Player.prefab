@@ -188,7 +188,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   _groundCheck: {fileID: 1321155010080134790}
   _groundCheckDistance: 0.1
-  _gravity: 10
+  _gravity: 20
   directionInput: {x: 0, y: 0}
 --- !u!114 &6069361038934852561
 MonoBehaviour:
@@ -206,7 +206,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 66b9ba7ec768ac94a8dde4a0daf84210, type: 2}
   - {fileID: 11400000, guid: eb7149cfdbc14e34ca3e1aea52539984, type: 2}
   _itemImage: {fileID: 0}
-  carController: {fileID: 2045066199060761082}
+  playerCarController: {fileID: 2045066199060761082}
   itemDropLocation: {fileID: 5188892571982996555}
 --- !u!114 &101560210693239024
 MonoBehaviour:
@@ -222,6 +222,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxTurns: 3
   _turnText: {fileID: 0}
+  _positionText: {fileID: 0}
+  _scoreText: {fileID: 0}
 --- !u!135 &6174966271182450283
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -259,6 +261,7 @@ MonoBehaviour:
   driftPressed: 0
   driftReleased: 0
   itemPressed: 0
+  controlScheme: 
 --- !u!114 &2351730953192849080
 MonoBehaviour:
   m_ObjectHideFlags: 0

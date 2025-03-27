@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class CarControllerSimple : MonoBehaviour
+public class PlayerCarController : MonoBehaviour
 {
     private Rigidbody _rb;
     private PlayerInputManager _playerInputManager;
@@ -160,21 +160,21 @@ public class CarControllerSimple : MonoBehaviour
         float newForwardSpeed =
             Mathf.MoveTowards(currentSpeed, targetSpeed, _acceleration * Time.fixedDeltaTime);
 
-        // Grip represents how fast does the velocity direction follow the car orientation
+        // Grip represents how fast does the velocity direction follow the car orientation (1 = instantaneous, 0 = never)
         _currentGrip = _isDrifting ? _driftGrip : _baseGrip;
         // We ignore vertical movement
         Vector3 groundVelocity = Vector3.ProjectOnPlane(_rb.velocity, transform.up).normalized;
         Vector3 moveDirection = Vector3.Lerp(groundVelocity * Mathf.Sign(localVelocity.z), transform.forward, _currentGrip);
         _rb.velocity = moveDirection * newForwardSpeed;
-
+        #endregion
+        
+        // Check drifting after moving to override velocity
         if (_endDrifting)
         {
             _rb.velocity = transform.forward * _rb.velocity.magnitude;
             _isDrifting = false;
             _endDrifting = false;
         }
-        
-        #endregion
         
         #region Ground check
         _isOnGround = Physics.Raycast(_groundCheck.position, -transform.up, out var hit, _groundCheckDistance, _groundLayer);
@@ -201,9 +201,7 @@ public class CarControllerSimple : MonoBehaviour
         }
         #endregion
         
-        #region Steering + camera turning
-
-        
+        #region Camera turning
         // Move POV to accomodate for new trajectory
         var timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(

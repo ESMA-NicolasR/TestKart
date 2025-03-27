@@ -9,6 +9,6 @@ public class ItemChampignon : Item
     public float decayTime;
     public override void Activation(PlayerItemManager playerItemManager)
     {
-        playerItemManager.carController.Boost(speedIncrease, decayTime);
+        playerItemManager.playerCarController.Boost(speedIncrease, decayTime);
     }
 }
