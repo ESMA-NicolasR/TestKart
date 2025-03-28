@@ -8,16 +8,15 @@ using UnityEngine.InputSystem;
 
 public class PlayerRaceManager : MonoBehaviour
 {
-    [SerializeField] private int _maxTurns;
     private int _currentTurn;
     [SerializeField] private TextMeshProUGUI _turnText;
     [SerializeField] private TextMeshProUGUI _positionText;
     [SerializeField] private TextMeshProUGUI _scoreText;
     private Dictionary<int, bool> _passedCheckpoints;
-    private static float PCT_CHECKPOINTS_NEEDED_FOR_TURN = 0.75f;
     private int _lastCheckpoint;
     private int _score;
     private PlayerCarController _carController;
+    public bool isRacing;
 
     public static event Action<PlayerRaceManager> OnPlayerFinished;
 
@@ -33,6 +32,7 @@ public class PlayerRaceManager : MonoBehaviour
 
     public void Reset()
     {
+        _carController.Reset();
         // Init checkpoints as not passed yet
         _passedCheckpoints = new Dictionary<int, bool>();
         foreach (var checkpoint in GameManager.Instance.allCheckpoints)
@@ -43,6 +43,8 @@ public class PlayerRaceManager : MonoBehaviour
         // Set as first turn
         _currentTurn = 0;
         UpdateTurnText();
+        // Set ready for race
+        isRacing = true;
 
     }
 
@@ -51,9 +53,8 @@ public class PlayerRaceManager : MonoBehaviour
         // Count how many checkpoints we passed, cast as float to get a % out of it after
         float nbCheckpointsPassed = _passedCheckpoints.Count(pair => pair.Value);
         float ratioPassed = nbCheckpointsPassed / GameManager.Instance.allCheckpoints.Length;
-        Debug.Log(ratioPassed);
         // Check we took enough checkpoints for the turn
-        bool hasFinishedTurn = ratioPassed >= PCT_CHECKPOINTS_NEEDED_FOR_TURN;
+        bool hasFinishedTurn = ratioPassed >= GameManager.Instance.pctCheckpointsNeededForTurn;
 
         if (hasFinishedTurn)
         {
@@ -88,12 +89,12 @@ public class PlayerRaceManager : MonoBehaviour
     
     private void UpdateTurnText()
     {
-        _turnText.text = $"Turn {_currentTurn}/{_maxTurns}";
+        _turnText.text = $"Turn {_currentTurn}/{GameManager.Instance.maxTurns}";
     }
 
     private void CheckHasFinished()
     {
-        if (_currentTurn >= _maxTurns)
+        if (_currentTurn >= GameManager.Instance.maxTurns)
         {
             _turnText.text = $"Finished !";
             OnPlayerFinished?.Invoke(this);

@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using TMPro;
 using UnityEngine;
 
@@ -18,7 +16,8 @@ public class GameManager : MonoBehaviour
     private static int MAX_SCORE = 10;
     private static int LOST_SCORE_PER_PLACE = 2;
     public int maxTurns = 3;
-    private bool _raceIsOver;
+    public float pctCheckpointsNeededForTurn = 0.75f;
+
     [SerializeField] private TextMeshProUGUI _globalText;
     [SerializeField] private float timeStartRace;
     [SerializeField] private float timeEndRace;
@@ -56,15 +55,15 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartRace()
     {
-        StartCoroutine(DisplayText("Ready ?", timeStartRace));
         _nbPlayerFinished = 0;
-        _raceIsOver = false;
         for (int i = 0; i < players.Count; i++)
         {
             players[i].transform.position = playerSpawns[i].position;
+            players[i].transform.rotation = playerSpawns[i].rotation;
             players[i].Reset();
             players[i].DisableMovement();
         }
+        StartCoroutine(DisplayText("Ready ?", timeStartRace));
         yield return new WaitForSeconds(timeStartRace);
         StartCoroutine(DisplayText("Go !!!", timeStartRace));
         for (int i = 0; i < players.Count; i++)
@@ -95,20 +94,29 @@ public class GameManager : MonoBehaviour
 
     private void OnPlayerFinished(PlayerRaceManager player)
     {
+        // Ignore players doing laps after they finished
+        if (!player.isRacing) return;
+        
+        // Take player into account
+        player.isRacing = false;
         player.GainScore(MAX_SCORE - _nbPlayerFinished*LOST_SCORE_PER_PLACE);
         _nbPlayerFinished++;
-        if (_nbPlayerFinished >= players.Count - 1)
+        if (_nbPlayerFinished == players.Count - 1)
         {
+            // Score the last player still racing
+            // Don't find it by position in case something wild happened at last moment and positions are not updated
+            PlayerRaceManager lastPlayer = players.Find(x => x.isRacing);
+            lastPlayer.isRacing = false;
+            lastPlayer.GainScore(MAX_SCORE - _nbPlayerFinished*LOST_SCORE_PER_PLACE);
             StartCoroutine(EndRace());
         }
     }
 
     private IEnumerator EndRace()
     {
-        _raceIsOver = true;
         StartCoroutine(DisplayText("FINISHED !", timeEndRace));
         yield return new WaitForSeconds(timeEndRace);
-        StartRace();
+        StartCoroutine(StartRace());
     }
 
     private IEnumerator DisplayText(string text, float time)

@@ -71,18 +71,26 @@ public class PlayerCarController : MonoBehaviour
 
     void Update()
     {
-        if (!canMove) return;
+        if (!canMove)
+        {
+            directionInput = Vector2.zero;
+            _isDrifting = false;
+            _beginDrifting = false;
+            _endDrifting = false;
+        }
         // Reading inputs
-        directionInput = _playerInputManager.directionInput;
-        if (_playerInputManager.driftPressed)
+        else
         {
-            _beginDrifting = true;
+            directionInput = _playerInputManager.directionInput;
+            if (_playerInputManager.driftPressed)
+            {
+                _beginDrifting = true;
+            }
+            else if (_playerInputManager.driftReleased)
+            {
+                _endDrifting = true;
+            }
         }
-        else if (_playerInputManager.driftReleased)
-        {
-            _endDrifting = true;
-        }
-
     }
 
     public void Boost(float speedIncrease, float decayTime)
@@ -225,14 +233,8 @@ public class PlayerCarController : MonoBehaviour
         #endregion
     }
 
-    private void OnGUI()
+    public void Reset()
     {
-        var style = new GUIStyle();
-        style.fontSize = 20;
-        GUILayout.Label($"x: {_rb.velocity.x:F}, y: {_rb.velocity.y:F}, z: {_rb.velocity.z:F}", style);
-        var localVelocity = _rb.transform.InverseTransformDirection(_rb.velocity);
-        GUILayout.Label(localVelocity.ToString(), style);
-        GUILayout.Label($"_groundSpeedVariator : {_groundSpeedMultiplier:F}, _acceleration : {_acceleration:F}", style);
-        GUILayout.Label($"_isOnground : {_isOnGround}", style);
+        _rb.velocity = Vector3.zero;
     }
 }
