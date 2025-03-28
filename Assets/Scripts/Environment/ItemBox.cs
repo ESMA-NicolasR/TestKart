@@ -1,7 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class ItemBox : MonoBehaviour
@@ -19,8 +16,7 @@ public class ItemBox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        PlayerItemManager player = other.GetComponent<PlayerItemManager>();
-        if (player!=null)
+        if(other.TryGetComponent<PlayerItemManager>(out var player))
         {
             player.GenerateItem();
             StartCoroutine(RespawnCoroutine());

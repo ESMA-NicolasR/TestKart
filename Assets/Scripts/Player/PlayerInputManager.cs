@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,7 +15,7 @@ public class PlayerInputManager : MonoBehaviour
     {
         _playerInput = GetComponent<PlayerInput>();
         // Unity disconnects the control scheme for local multiplayer on the same device
-        _playerInput.SwitchCurrentControlScheme(controlScheme, new []{Keyboard.current});
+        _playerInput.SwitchCurrentControlScheme(controlScheme, Keyboard.current);
     }
 
     // Update is called once per frame

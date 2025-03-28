@@ -1,11 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
 
 public class PlayerCarController : MonoBehaviour
 {
@@ -57,8 +52,9 @@ public class PlayerCarController : MonoBehaviour
     [SerializeField] private float _gravity;
     private bool _isOnGround;
     
-    public Vector2 directionInput;
+    [Header("Current inputs")]
     public bool canMove;
+    private Vector2 _directionInput;
 
     void Awake()
     {
@@ -73,15 +69,14 @@ public class PlayerCarController : MonoBehaviour
     {
         if (!canMove)
         {
-            directionInput = Vector2.zero;
-            _isDrifting = false;
+            _directionInput = Vector2.zero;
             _beginDrifting = false;
             _endDrifting = false;
         }
         // Reading inputs
         else
         {
-            directionInput = _playerInputManager.directionInput;
+            _directionInput = _playerInputManager.directionInput;
             if (_playerInputManager.driftPressed)
             {
                 _beginDrifting = true;
@@ -140,7 +135,7 @@ public class PlayerCarController : MonoBehaviour
         
         // Steer with inputs
         _steeringSpeed = _isDrifting ? _baseSteeringSpeed * _steeringDriftMultiplier : _baseSteeringSpeed;
-        transform.eulerAngles += directionInput.x * Mathf.Sign(localVelocity.z) * _steeringSpeed * Time.fixedDeltaTime * transform.up;
+        transform.eulerAngles += _directionInput.x * Mathf.Sign(localVelocity.z) * _steeringSpeed * Time.fixedDeltaTime * transform.up;
         
         #region Moving
         float targetSpeed;
@@ -148,7 +143,7 @@ public class PlayerCarController : MonoBehaviour
         float minBackwardSpeed = _minSpeed * _currentSpeedMultiplier * _groundSpeedMultiplier;
 
         // Check if we reached max forward velocity
-        if (directionInput.y > 0 && localVelocity.z <= maxForwardSpeed)
+        if (_directionInput.y > 0 && localVelocity.z <= maxForwardSpeed)
         {
             float accelerationVariated = _maxAcceleration * _groundSpeedMultiplier;
             _acceleration += accelerationVariated * Time.fixedDeltaTime / _timeToAccelerate;
@@ -156,7 +151,7 @@ public class PlayerCarController : MonoBehaviour
             targetSpeed = maxForwardSpeed;
         }
         // Check if we reached max backward velocity
-        else if (directionInput.y < 0 && localVelocity.z >= minBackwardSpeed)
+        else if (_directionInput.y < 0 && localVelocity.z >= minBackwardSpeed)
         {
             _acceleration = _brakeForce;
             targetSpeed = minBackwardSpeed;
@@ -215,20 +210,20 @@ public class PlayerCarController : MonoBehaviour
         
         #region Camera turning
         // Move POV to accomodate for new trajectory
-        var timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
+        var timeTo = (_directionInput.x == 0 || Mathf.Sign(_directionInput.x) != Mathf.Sign(_pov.localPosition.x)) ? _timeToNeutral : _timeToPovOffset;
         var newX = Mathf.MoveTowards(
             _pov.localPosition.x,
-            -directionInput.x * _maxPovOffset,
+            -_directionInput.x * _maxPovOffset,
             _maxPovOffset * Time.fixedDeltaTime/timeTo);
         var newPos = _pov.localPosition;
         newPos.x = newX;
         _pov.localPosition = newPos;
         
         // Shoulder offset to see the car turning
-        timeTo = (directionInput.x == 0 || Mathf.Sign(directionInput.x) != Mathf.Sign(_3rdPersonFollow.ShoulderOffset.x)) ? _timeToNeutral : _timeToShoulderOffset;
+        timeTo = (_directionInput.x == 0 || Mathf.Sign(_directionInput.x) != Mathf.Sign(_3rdPersonFollow.ShoulderOffset.x)) ? _timeToNeutral : _timeToShoulderOffset;
         _3rdPersonFollow.ShoulderOffset.x = Mathf.MoveTowards(
             _3rdPersonFollow.ShoulderOffset.x,
-            directionInput.x*_shoulderMaxOffset,
+            _directionInput.x*_shoulderMaxOffset,
             _shoulderMaxOffset*Time.fixedDeltaTime/timeTo);
         #endregion
     }
@@ -236,5 +231,6 @@ public class PlayerCarController : MonoBehaviour
     public void Reset()
     {
         _rb.velocity = Vector3.zero;
+        _isDrifting = false;
     }
 }

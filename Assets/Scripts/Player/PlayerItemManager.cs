@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -13,7 +10,7 @@ public class PlayerItemManager : MonoBehaviour
     private Item _currentItem;
     [SerializeField]
     private Image _itemImage;
-    [FormerlySerializedAs("carController")] public PlayerCarController playerCarController;
+    public PlayerCarController playerCarController;
     public Transform itemDropLocation;
 
     private int _numberOfItemUse;
@@ -47,6 +44,7 @@ public class PlayerItemManager : MonoBehaviour
         if (_currentItem != null)
         {
             _currentItem.Activation(this);
+            // Lower uses left then check we still have some
             if (--_numberOfItemUse <= 0)
             {
                 _currentItem = null;

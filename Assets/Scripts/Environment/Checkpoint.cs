@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -20,10 +17,9 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        PlayerRaceManager playerRaceManager = other.GetComponent<PlayerRaceManager>();
-        if (playerRaceManager != null)
+        if (other.TryGetComponent<PlayerRaceManager>(out var player))
         {
-            playerRaceManager.PassCheckpoint(_index);
+            player.PassCheckpoint(_index);
         }
     }
 }

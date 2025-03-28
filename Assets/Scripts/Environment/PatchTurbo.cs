@@ -7,7 +7,7 @@ public class PatchTurbo : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        // Check if what triggered is roughly in the same direction as the patch
+        // Check if what triggered is roughly facing the same direction as the patch
         bool isAligned = Vector3.Angle(transform.forward, other.transform.forward) <= 90f;
         // And if it's a player, give it a boost
         if(isAligned && other.TryGetComponent<PlayerCarController>(out var player))

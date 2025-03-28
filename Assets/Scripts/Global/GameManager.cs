@@ -34,7 +34,6 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        PlayerRaceManager.OnPlayerFinished += OnPlayerFinished;
         // Get checkpoints in scene by hierarchy order
         allCheckpoints = FindObjectsByType<Checkpoint>(FindObjectsSortMode.None).OrderBy(checkpoint => checkpoint.transform.GetSiblingIndex()).ToArray();
         var index = 0;
@@ -45,6 +44,17 @@ public class GameManager : MonoBehaviour
         }
         
         players = FindObjectsByType<PlayerRaceManager>(FindObjectsSortMode.None).ToList();
+    }
+
+    private void OnEnable()
+    {
+        PlayerRaceManager.OnPlayerFinished += OnPlayerFinished;
+    }
+
+    private void OnDisable()
+    {
+        PlayerRaceManager.OnPlayerFinished -= OnPlayerFinished;
+
     }
 
     private void Start()

@@ -189,7 +189,7 @@ MonoBehaviour:
   _groundCheck: {fileID: 1321155010080134790}
   _groundCheckDistance: 0.1
   _gravity: 20
-  directionInput: {x: 0, y: 0}
+  canMove: 0
 --- !u!114 &6069361038934852561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,10 +220,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 432b4e71a41809d48b3168c5b22d0a7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxTurns: 3
   _turnText: {fileID: 0}
   _positionText: {fileID: 0}
   _scoreText: {fileID: 0}
+  isRacing: 0
 --- !u!135 &6174966271182450283
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -289,7 +289,7 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: Keyboard
+  m_DefaultControlScheme: 
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
