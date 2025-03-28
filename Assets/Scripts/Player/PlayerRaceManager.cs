@@ -61,12 +61,12 @@ public class PlayerRaceManager : MonoBehaviour
         _lastCheckpoint = id;
     }
     
-    public void UpdateTurnText()
+    private void UpdateTurnText()
     {
         _turnText.text = $"Turn {_currentTurn}/{_maxTurns}";
     }
 
-    public void CheckHasFinished()
+    private void CheckHasFinished()
     {
         if (_currentTurn >= _maxTurns)
         {
