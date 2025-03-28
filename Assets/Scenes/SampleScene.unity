@@ -156,7 +156,8 @@ MonoBehaviour:
   - {fileID: 1713941526}
   - {fileID: 1299366118}
   maxTurns: 3
-  _globalText: {fileID: 0}
+  pctCheckpointsNeededForTurn: 0.75
+  _globalText: {fileID: 512467732}
   timeStartRace: 2
   timeEndRace: 5
 --- !u!4 &10909158
