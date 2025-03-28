@@ -17,11 +17,22 @@ public class PlayerRaceManager : MonoBehaviour
     private static float PCT_CHECKPOINTS_NEEDED_FOR_TURN = 0.75f;
     private int _lastCheckpoint;
     private int _score;
+    private PlayerCarController _carController;
 
     public static event Action<PlayerRaceManager> OnPlayerFinished;
+
+    private void Awake()
+    {
+        _carController = GetComponent<PlayerCarController>();
+    }
+
     private void Start()
     {
-        UpdateTurnText();
+        Reset();
+    }
+
+    public void Reset()
+    {
         // Init checkpoints as not passed yet
         _passedCheckpoints = new Dictionary<int, bool>();
         foreach (var checkpoint in GameManager.Instance.allCheckpoints)
@@ -29,6 +40,10 @@ public class PlayerRaceManager : MonoBehaviour
             _passedCheckpoints.Add(checkpoint.GetIndex(), false);
         }
         _lastCheckpoint = -1;
+        // Set as first turn
+        _currentTurn = 0;
+        UpdateTurnText();
+
     }
 
     public void NextTurn()
@@ -59,6 +74,16 @@ public class PlayerRaceManager : MonoBehaviour
     {
         _passedCheckpoints[id] = true;
         _lastCheckpoint = id;
+    }
+
+    public void EnableMovement()
+    {
+        _carController.canMove = true;
+    }
+    
+    public void DisableMovement()
+    {
+        _carController.canMove = false;
     }
     
     private void UpdateTurnText()

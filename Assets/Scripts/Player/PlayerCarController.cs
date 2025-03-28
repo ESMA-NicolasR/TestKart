@@ -58,6 +58,7 @@ public class PlayerCarController : MonoBehaviour
     private bool _isOnGround;
     
     public Vector2 directionInput;
+    public bool canMove;
 
     void Awake()
     {
@@ -70,6 +71,7 @@ public class PlayerCarController : MonoBehaviour
 
     void Update()
     {
+        if (!canMove) return;
         // Reading inputs
         directionInput = _playerInputManager.directionInput;
         if (_playerInputManager.driftPressed)
