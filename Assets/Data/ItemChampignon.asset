@@ -15,5 +15,5 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: 2805b3f4e8c67c946a62da8bf7398f58, type: 3}
   itemName: Mushroom
   nbUse: 1
-  speedIncrease: 2
+  speedIncrease: 1.7
   decayTime: 1.5

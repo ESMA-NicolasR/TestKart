@@ -17,7 +17,6 @@ public class PlayerRaceManager : MonoBehaviour
     private static float PCT_CHECKPOINTS_NEEDED_FOR_TURN = 0.75f;
     private int _lastCheckpoint;
     private int _score;
-    private Func<KeyValuePair<int, bool>, bool> _filterPassed;
 
     public static event Action<PlayerRaceManager> OnPlayerFinished;
     private void Start()
@@ -29,17 +28,15 @@ public class PlayerRaceManager : MonoBehaviour
         {
             _passedCheckpoints.Add(checkpoint.GetIndex(), false);
         }
-        // Set up filter to count passed checkpoints
-        _filterPassed = (kv) => kv.Value;
         _lastCheckpoint = -1;
     }
 
     public void NextTurn()
     {
-        // Count how much checkpoints we passed
-        int nbCheckpointsPassed = _passedCheckpoints.Count(_filterPassed);
-        float ratioPassed = (float)nbCheckpointsPassed / GameManager.Instance.allCheckpoints.Length;
-
+        // Count how many checkpoints we passed, cast as float to get a % out of it after
+        float nbCheckpointsPassed = _passedCheckpoints.Count(pair => pair.Value);
+        float ratioPassed = nbCheckpointsPassed / GameManager.Instance.allCheckpoints.Length;
+        Debug.Log(ratioPassed);
         // Check we took enough checkpoints for the turn
         bool hasFinishedTurn = ratioPassed >= PCT_CHECKPOINTS_NEEDED_FOR_TURN;
 

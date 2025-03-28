@@ -175,8 +175,8 @@ MonoBehaviour:
   _timeToAccelerate: 2
   _brakeForce: 50
   _naturalDeceleration: 10
-  _maxSpeed: 100
-  _minSpeed: -50
+  _maxSpeed: 80
+  _minSpeed: -30
   _baseGrip: 1
   _driftGrip: 0.04
   _steeringDriftMultiplier: 1.7
@@ -290,7 +290,7 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard
-  m_DefaultActionMap: Player1
+  m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!1 &6749883785911644432
