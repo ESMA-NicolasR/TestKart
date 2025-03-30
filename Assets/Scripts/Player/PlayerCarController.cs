@@ -166,7 +166,7 @@ public class PlayerCarController : MonoBehaviour
         }
         
         // Ignore vertical movement
-        Vector3 groundVelocity = Vector3.ProjectOnPlane(_rb.velocity, transform.up);
+        Vector3 groundVelocity =  new Vector3(_rb.velocity.x, 0, _rb.velocity.z);
         float currentSpeed = groundVelocity.magnitude * Mathf.Sign(localVelocity.z);
         float newForwardSpeed =
             Mathf.MoveTowards(currentSpeed, targetSpeed, _acceleration * Time.fixedDeltaTime);

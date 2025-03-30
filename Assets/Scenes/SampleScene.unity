@@ -151,15 +151,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28391c6ecfdc4552bbeaa0dbd5c66f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allCheckpoints: []
   playerSpawns:
   - {fileID: 1713941526}
   - {fileID: 1299366118}
+  allCheckpoints: []
   maxTurns: 3
+  maxScore: 10
+  lostScorePerPlace: 2
   pctCheckpointsNeededForTurn: 0.75
-  _globalText: {fileID: 512467732}
+  delayBetweenPositionChecks: 0.5
   timeStartRace: 2
   timeEndRace: 5
+  _globalText: {fileID: 512467732}
 --- !u!4 &10909158
 Transform:
   m_ObjectHideFlags: 0
@@ -2213,7 +2216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f57c6cc5a42dc394482964490b324fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speedVariator: 1
+  speedMultiplier: 1
 --- !u!1 &623694482
 GameObject:
   m_ObjectHideFlags: 0
@@ -4618,7 +4621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f57c6cc5a42dc394482964490b324fff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speedVariator: 0.3
+  speedMultiplier: 0.3
 --- !u!64 &1363453650
 MeshCollider:
   m_ObjectHideFlags: 0
