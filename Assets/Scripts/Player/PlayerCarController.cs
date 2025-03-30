@@ -49,7 +49,6 @@ public class PlayerCarController : MonoBehaviour
     [SerializeField] private float _groundCheckDistance;
     [SerializeField] private float _gravity;
     [SerializeField] private float _groundAlignementSpeed;
-    private bool _isOnGround;
     
     [Header("Current inputs")]
     public bool canMove;
@@ -191,9 +190,9 @@ public class PlayerCarController : MonoBehaviour
         
         #region Adapt to ground
         // Ground check
-        _isOnGround = Physics.Raycast(_groundCheck.position, -transform.up, out var hit, _groundCheckDistance, _groundLayer);
+        bool isOnGround = Physics.Raycast(_groundCheck.position, -transform.up, out var hit, _groundCheckDistance, _groundLayer);
         
-        if (_isOnGround)
+        if (isOnGround)
         {
             // Align to ground
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, _groundAlignementSpeed * Time.fixedDeltaTime);
