@@ -3,7 +3,8 @@ using UnityEngine.Serialization;
 
 public class Checkpoint : MonoBehaviour
 {
-    [FormerlySerializedAs("_id")] [SerializeField] private int _index;
+    // Gameplay
+    private int _index;
 
     public void SetIndex(int id)
     {

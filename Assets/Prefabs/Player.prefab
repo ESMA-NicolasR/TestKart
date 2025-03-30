@@ -180,15 +180,13 @@ MonoBehaviour:
   _baseGrip: 1
   _driftGrip: 0.04
   _steeringDriftMultiplier: 1.7
-  _groundSpeedLayer:
-    serializedVersion: 2
-    m_Bits: 128
   _groundLayer:
     serializedVersion: 2
     m_Bits: 4294967295
   _groundCheck: {fileID: 1321155010080134790}
   _groundCheckDistance: 0.1
   _gravity: 20
+  _groundAlignementSpeed: 40
   canMove: 0
 --- !u!114 &6069361038934852561
 MonoBehaviour:

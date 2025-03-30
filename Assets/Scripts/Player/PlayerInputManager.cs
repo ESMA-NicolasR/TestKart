@@ -3,13 +3,17 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputManager : MonoBehaviour
 {
-    private PlayerInput _playerInput;
-
+    [Header("Exposed inputs")]
     public Vector2 directionInput;
     public bool driftPressed;
     public bool driftReleased;
     public bool itemPressed;
+    
+    [Header("Controls")]
     public string controlScheme;
+    
+    // Internal components
+    private PlayerInput _playerInput;
 
     private void Awake()
     {
@@ -18,9 +22,9 @@ public class PlayerInputManager : MonoBehaviour
         _playerInput.SwitchCurrentControlScheme(controlScheme, Keyboard.current);
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Read inputs
         directionInput = _playerInput.actions["Move"].ReadValue<Vector2>();
         driftPressed = _playerInput.actions["Drift"].WasPressedThisFrame();
         driftReleased = _playerInput.actions["Drift"].WasReleasedThisFrame();

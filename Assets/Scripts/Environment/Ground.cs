@@ -1,6 +1,8 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Ground : MonoBehaviour
-{
-    public float speedVariator;
+{ 
+    [Header("Gameplay")]
+    public float speedMultiplier;
 }

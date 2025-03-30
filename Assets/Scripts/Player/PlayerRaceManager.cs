@@ -6,21 +6,29 @@ using UnityEngine;
 
 public class PlayerRaceManager : MonoBehaviour
 {
+    [Header("State of the race")]
+    public bool isRacing;
     private int _currentTurn;
+    private int _lastCheckpoint;
+    private int _score;
+    private Dictionary<int, bool> _passedCheckpoints;
+    
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI _turnText;
     [SerializeField] private TextMeshProUGUI _positionText;
     [SerializeField] private TextMeshProUGUI _scoreText;
-    private Dictionary<int, bool> _passedCheckpoints;
-    private int _lastCheckpoint;
-    private int _score;
+    
+    // Internal components
     private PlayerCarController _carController;
-    public bool isRacing;
+    private PlayerItemManager _itemManager;
 
+    // Events
     public static event Action<PlayerRaceManager> OnPlayerFinished;
 
     private void Awake()
     {
         _carController = GetComponent<PlayerCarController>();
+        _itemManager = GetComponent<PlayerItemManager>();
     }
 
     private void Start()
@@ -30,7 +38,10 @@ public class PlayerRaceManager : MonoBehaviour
 
     public void Reset()
     {
+        // Reset internal components
         _carController.Reset();
+        _itemManager.Reset();
+        
         // Init checkpoints as not passed yet
         _passedCheckpoints = new Dictionary<int, bool>();
         foreach (var checkpoint in GameManager.Instance.allCheckpoints)
@@ -38,32 +49,34 @@ public class PlayerRaceManager : MonoBehaviour
             _passedCheckpoints.Add(checkpoint.GetIndex(), false);
         }
         _lastCheckpoint = -1;
+        
         // Set as first turn
         _currentTurn = 0;
         UpdateTurnText();
+        
         // Set ready for race
         isRacing = true;
-
     }
 
     public void NextTurn()
     {
-        // Count how many checkpoints we passed, cast as float to get a % out of it after
+        // Count how many checkpoints we passed, cast as float to get a percentage out of it after
         float nbCheckpointsPassed = _passedCheckpoints.Count(pair => pair.Value);
         float ratioPassed = nbCheckpointsPassed / GameManager.Instance.allCheckpoints.Length;
+        
         // Check we took enough checkpoints for the turn
         bool hasFinishedTurn = ratioPassed >= GameManager.Instance.pctCheckpointsNeededForTurn;
 
         if (hasFinishedTurn)
         {
-            _currentTurn++;
-            UpdateTurnText();
             // Reset checkpoints passed
             foreach (var index in _passedCheckpoints.Keys.ToList())
             {
                 _passedCheckpoints[index] = false;
             }
-
+            // Set up new turn
+            _currentTurn++;
+            UpdateTurnText();
             _lastCheckpoint = 0;
             CheckHasFinished();
         }
@@ -111,6 +124,7 @@ public class PlayerRaceManager : MonoBehaviour
 
     public float GetDistanceFromLastCheckpoint()
     {
+        // If we just started the race, take distance from last checkpoint of the track
         Checkpoint referenceCheckpoint = _lastCheckpoint == -1
             ? GameManager.Instance.allCheckpoints[^1]
             : GameManager.Instance.allCheckpoints[_lastCheckpoint];

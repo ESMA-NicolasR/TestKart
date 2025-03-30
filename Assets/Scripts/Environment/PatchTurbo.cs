@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PatchTurbo : MonoBehaviour
 {
+    [Header("Gameplay")]
     [SerializeField] private float _boostMultiplier;
     [SerializeField] private float _boostDuration;
     
