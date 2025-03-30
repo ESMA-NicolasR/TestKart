@@ -203,9 +203,9 @@ MonoBehaviour:
   _itemList:
   - {fileID: 11400000, guid: 66b9ba7ec768ac94a8dde4a0daf84210, type: 2}
   - {fileID: 11400000, guid: eb7149cfdbc14e34ca3e1aea52539984, type: 2}
+  itemDropLocation: {fileID: 5188892571982996555}
   _itemImage: {fileID: 0}
   playerCarController: {fileID: 2045066199060761082}
-  itemDropLocation: {fileID: 5188892571982996555}
 --- !u!114 &101560210693239024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,10 +218,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 432b4e71a41809d48b3168c5b22d0a7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isRacing: 0
   _turnText: {fileID: 0}
   _positionText: {fileID: 0}
   _scoreText: {fileID: 0}
-  isRacing: 0
 --- !u!135 &6174966271182450283
 SphereCollider:
   m_ObjectHideFlags: 0
